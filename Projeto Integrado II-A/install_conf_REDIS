@@ -1,0 +1,19 @@
+sudo apt update
+sudo apt upgrade 
+sudo apt install redis-server # instalar 
+
+Depois de concluir a instalação, o Redis será iniciado automaticamente. Para verificar se o Redis está sendo executado, você pode executar o seguinte comando:
+
+sudo systemctl status redis-server # Esta funcionando 
+
+
+O Redis usa a porta padrão 6379 para comunicação, verifique se a porta está aberta executando o seguinte comando:
+
+sudo ufw allow 6379/tcp
+
+Isso permite que o tráfego da porta 6379 passe pelo firewall do Ubuntu.
+O comando sudo ufw allow 6379/tcp permite que o tráfego na porta TCP 6379 seja permitido através do firewall UFW (Uncomplicated Firewall). Quando você executou o comando, foi solicitada a sua senha de administrador do sistema e, em seguida, o UFW adicionou uma regra para permitir o tráfego na porta 6379.
+
+O output que você recebeu informa que as regras do firewall foram atualizadas para as conexões IPv4 e IPv6, que são as versões do protocolo de internet. Isso significa que tanto as conexões IPv4 quanto as IPv6 agora podem passar pelo firewall na porta TCP 6379
+
+sudo snap install redis-desktop-manager
