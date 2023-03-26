@@ -1,0 +1,110 @@
+---
+title: 'Análise exploratória: Exportações'
+author: "Luiz Paulo T. Gonçalves"
+date: "25/03/2023"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T)
+```
+
+# Exportações brasileiras durante o século XIX 
+
+Os dados escolhidos para a presente análise exploratória são referentes aos dados de exportação de café (em sacas de 60kg) e de açúcar (em toneladas). Há tempo eu desenvolvi um pacote em linguagem R, {CliometricsBR}, o qua pode ser encontrado no meu github: https://github.com/LuizPaulo23/CliometricsBR. Com o {CliometricsBR} podemos importar tais dados direto do repositório do Instituto de Pesquisa Econômica Aplicada (IPEA) via API.  
+
+### Importando os dados 
+
+```{r echo=TRUE, message=F, warning=FALSE}
+
+library(CliometricsBR)
+library(tidyverse)
+library(GGally)
+library(stargazer)
+
+# Puxando os metadados 
+#metadados = CliometricsBR::get_metadadosIPEA(codes = "all") 
+# Series que vão ser selecionadas: HIST_XACUCARQ e HIST_XCAFEQ
+
+export_raw <- CliometricsBR::get_seriesIPEA(codes = c("HIST_XACUCARQ", 
+                                                     "HIST_XCAFEQ"))
+
+```
+
+# Limpando e organizando o dataset 
+
+Pois bem, com os dados importados via API usando o CliometricsBR. Pode-se, agora, organizar e limpar o dataset. Em primeiro, vamos filtrar os dados apenas de 1821 a 1900, pois queremos apenas os dados referentes ao século XIX. Em segundo, busca-se transformar os dados por logaritmo natural, assim, padronizando ambas variáveis na mesma escala. 
+
+
+```{r}
+
+db_export <- export_raw %>% 
+             dplyr::filter(date >= "1821-01-01" & 
+                             date <= "1900-01-01") %>% 
+                    relocate(date, .after = NULL) %>% 
+                    mutate(log_value = log(value)) %>% 
+             tidyr::pivot_wider(id_cols = date, 
+                                names_from = code_series, 
+                                values_from = log_value) %>% 
+             janitor::clean_names() %>% 
+             dplyr::rename("Log do Açúcar" = "hist_xacucarq", 
+                           "Log do Café" = "hist_xcafeq")
+
+```
+
+
+# Visualizando: a relação de associação entre as exportações de café e açúcar do século XIX 
+
+Com o dataset organizado vamos a análise exploratória com alguns plotes e testes estatísticos 
+
+
+```{r}
+# db_export %>% glimpse()
+
+ggplot2::ggplot(db_export)+
+        aes(x = `Log do Açúcar`, 
+            y = `Log do Café`)+
+        geom_point(pch = 19, colour = "black")+
+        geom_smooth(method = "lm", 
+                    fill = "red", 
+                    colour = "purple")+
+        labs(title = "Log das exportações de café vs Log das exportações de açúcar", 
+             caption = "Elaboração de Luiz Paulo T. Gonçalves (2023)")+
+        theme_bw()+
+        theme(plot.caption = element_text(hjust = 0))
+        
+
+
+```
+
+Fica evidente que encontramos uma relação positiva entre as exportações de café e açúcar no século XIX, isto é, correlação positivas entre as variáveis. Pois bem, vamos aplicar um teste de Pearson para observar o grau de associação linear entre as variáveis. A correlação de Pearson pode ser dado matematicamente como segue: 
+
+\begin{equation}
+r = \frac{\sum_{i = 1}^n (x_{i} - \overline{x})(y_{i}-\overline{y})}{\sqrt{\sum_{i=1}^n (x_{i}-\overline{x})^2} \sqrt{\sum_{i=1}^n(y_{i}-\overline{y})^2}}
+\end{equation}
+
+Assim, temos: 
+
+```{r}
+GGally::ggpairs(db_export[, 2:3], 
+                title = "Correlação de Pearson")
+```
+
+
+Pois bem, retornou uma correlação positiva na casa de 0.76
+Poderiamos ir além e modelar um modelo de regressão linear, assim, como ambas variáveis foram  transformadas por log natural ficaria uma modelo log-log de regressão linear simple: 
+
+```{r}
+model_lm = lm(formula = `Log do Café` ~ `Log do Açúcar`, 
+              data = db_export)
+
+stargazer::stargazer(model_lm, 
+                     type = "text", 
+                     title = "Modelo Log-Log")
+
+```
+
+Observe que retornou significante e com R² na casa de 0,58. O coeficiente indica que a variação de 1% das exportações de açúcar aumentavam, em média, 1.5% as exportações de café. Uma relação positiva e elástica. 
