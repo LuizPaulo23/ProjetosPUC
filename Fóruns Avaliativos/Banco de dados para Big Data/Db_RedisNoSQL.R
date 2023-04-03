@@ -16,23 +16,24 @@ library(CliometricsBR)
 export_raw <- CliometricsBR::get_seriesIPEA(codes = c("HIST_XACUCARQ",
                                                       "HIST_XCAFEQ"))
 
+#metadados <- CliometricsBR::get_metadadosIPEA(codes = "all")
 # Limpando e organizando o data.frame -------------------------------------------
 
 db_export <- export_raw %>% 
-             relocate(date, .after = NULL) %>% 
+             dplyr::relocate(date, .after = NULL) %>% 
              pivot_wider(id_cols = date, 
                          names_from = code_series, 
                          values_from = value) %>% 
-             clean_names() %>% 
-             rename("Açúcar" = "hist_xacucarq", 
-                    "Café" = "hist_xcafeq")
+             janitor::clean_names() %>% 
+             dplyr::rename("Açúcar" = "hist_xacucarq", 
+                           "Café" = "hist_xcafeq")
 
 # Conectando ao Redis - Cliometrics_Prod ----------------------------------------
 
 redis_conn <- redux::redis_connection(redis_config()) 
 print(redis_conn)
 r_conex <- redux::hiredis() 
-
+r_conex$PING()
 # OPERAÇÃO DE INSERÇÃO NO BANCO DE DADOS REDIS - db_export -------------------------------------
 
 coffe_raw_serialized <- base::serialize(db_export %>% 
@@ -62,4 +63,11 @@ check_redis("export_cafe")
 # OPERAÇÃO DE REMOÇÃO -------------------------------------------------------------------------
 
 r_conex$DEL("export_acucar")
+r_conex$KEYS("*")
+r_conex$DEL("export_cafe")
+r_conex$KEYS("*")
+
+
+
+
 
