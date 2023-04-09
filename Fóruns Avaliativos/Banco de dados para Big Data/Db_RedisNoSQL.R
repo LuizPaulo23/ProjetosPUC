@@ -62,7 +62,7 @@ check_redis("export_cafe")
 
 # OPERAÇÃO DE REMOÇÃO -------------------------------------------------------------------------
 
-r_conex$DEL("export_acucar")
+r_conex$DEL(r_conex$KEYS("*"))
 r_conex$KEYS("*")
 r_conex$DEL("export_cafe")
 r_conex$KEYS("*")
