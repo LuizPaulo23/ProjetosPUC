@@ -1,0 +1,60 @@
+/* Estilos globais */
+
+body {
+  background-color: #e6e6fa; /* alteração de cor */
+  font-family: Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Estilos do painel do título */
+
+#header {
+  background-color: #c2a4fe;
+  border-color: #9370DB;
+  color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Estilos do painel lateral */
+
+#sidebar {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+}
+
+/* Estilos do botão de envio */
+
+#submit {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#submit:hover {
+  background-color: #666;
+}
+
+/* Estilos do painel principal */
+
+#main {
+  background-color: #c2a4fe;
+  border: 1px solid #ccc;
+  padding: 20px;
+}
+
+/* Estilos do gráfico */
+
+#plot {
+  max-width: 100%;
+  height: auto;
+}
