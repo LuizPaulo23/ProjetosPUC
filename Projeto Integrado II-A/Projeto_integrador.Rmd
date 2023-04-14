@@ -1,7 +1,7 @@
 ---
 title: "Sistema de Cache com plotagem gráfica implementado em REDIS com linguagem R"
-author: "Luiz Paulo T. Gonçalves"
-date: "2023-04-14"
+author: "Luiz Paulo T. Gonçalves, Igor G. de Oliveira, João Paulo M. Rosa & Thiago A. da Silva "
+date: "Abril de 2023"
 output: pdf_document
 ---
 
@@ -9,20 +9,29 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# O sistema de banco de dados escolhido
+# Sistema de banco de dados escolhido
 
-Entre as inúmeras opções de Sistema Gerenciador de Banco de Dados NoSQL, o Redis destaca-se quando o assunto é cache. Dado sua velocidade e mecanismo de chave-valor, portanto, no presente projeto de Cache o Redis foi o escolhido. 
+Entre as inúmeras opções de Sistema Gerenciador de Banco de Dados NoSQL, o Redis destaca-se quando o assunto é cache -- dado sua velocidade e mecanismo de chave-valor. Portanto, no presente projeto de Cache com plotagem gráfica, o Redis foi o escolhido. 
 
-# Qual tipo de função (gráfico) para ser cacheado 
+# Tipo de função (gráfico) para ser cacheado 
 
-Os gráficos que serão cacheados são gráficos de distribuição, a saber: histograma e gráfico de densidade. Tais gráficos retornam a distribuoção dos dados, assim, possibilitando que o analista tome uma decisão de modelo mais apropriado de acordo com a distribuição. Por exemplo, uma distribuiçao binomial é mais apropriado em determinada modelagem estatística enquanto os que têm distribuição Gaussiana se enquadra melhor em outra modelagem. 
+Os gráficos que serão cacheados são gráficos de distribuição, a saber: histograma e gráfico de densidade. Tais gráficos retornam a distribuoção dos dados, assim, possibilitando que o analista ou cientista de dados tome uma decisão de modelo mais apropriado de acordo com a distribuição. Por exemplo, uma distribuiçao binomial é mais apropriado em determinada modelagem estatística, por outro lado, os que têm distribuição Gaussiana se enquadra melhor em outra modelagem. A função desenvolvida em linguagem R aceita qualquer tipo de estrutura de dado numérico retornando a distribuição de acordo com o tipo de gráfico escolhido. 
 
-# Em que formato os gráficos serão armazenados
+# Formato dos gráficos
+
+Os gráficos serão armazenados em formato de stringr no Redis. Como mencionando anteriormente, a função desenvovlida basicamente consegue gerar plots de qualquer dado numérico passado pelo usuário -- seja esse dado inteiro ou contínuo.  
 
 # Qual a solução adotada para geração dos índices
 
-# O projeto da solução em linguagem R 
-### Construindo a função em Linguagem R 
+Os índices foram construidos de acordo com o tipo (type) e nome da base de dados que o usuário passa como parâmetro. Por exemplo, caso o usuário escolha histogram (um gráfico de histograma) e sua base de dados é demominada "DBreceitas", gera-se um índice (chave única): **plot_histogram_DBreceitas**. O código em R: 
+
+
+```{r}
+# key_redis <- paste0("plot_", type, "_", base::deparse(substitute(db)))
+```
+
+
+# O projeto da solução: construindo a função em Linguagem R 
 
 ```{r message = F, warning = F}
 # Dependências\Packages Utilizados 
@@ -89,20 +98,14 @@ key_redis <- paste0("plot_", type, "_", base::deparse(substitute(db)))
 
 ```
 
-### Chamando a Função 
+# Chamando a Função 
 
-![Redis Vazio](Imagens_project/db_vazio.png)
-
-
+Com a função desenvolvida e conectado com o banco de dados Redis, pode-se finalmente utilizar o sistema de cache. Não obstante, antes podemos visualizar o banco de dados. Note que, como esperado, o banco de dados está vazio: 
 
 
+![Redis Vazio](Imagens_project/db_vazio.png)[H]   
 
-
-
-
-
-
-
+Chamando a função que tem dois parâmetros (db e type), isto é, a base de dados e o tipo de plot, a seguir vamos testar usando a base de dados Iris como exemplo. Inicialmente com gráfico de densidade e posteriomente com histograma: 
 
 
 ```{r}
@@ -113,10 +116,31 @@ CachePlot(db = iris,
           type = "histogram") 
 ```
 
-![Redis com os plots gerados](Imagens_project/db_plots.png)
+Visualizando novamente o banco de dados Redis. Percebe-se, como o esperado, que os plots foram salvos em formato de string 
 
-![Tela do Usuário](Imagens_project/user.png)
+![Redis com os plots gerados](Imagens_project/db_plots.png)[H]
 
+Na tela do usuário retorna: 
+
+![Tela do Usuário](Imagens_project/user.png)[H]
+
+
+# Funcionamento do Cache 
+
+Pois bem, agora, caso agora a persistência no banco de dados de plot com a mesma chave, isto é, com a mesma base de dados e com o mesmo tipo, não será salvo no banco de dados, mas sim apenas buscado e retornado para o usuário. Podemos testar tentando salvar um histograma (o qual já foi salvo anteriormente):
+
+```{r}
+
+CachePlot(db = iris, 
+          type = "density") 
+
+```
+
+![Redis Vazio](Imagens_project/cache.png)[H]
+
+# Conclusão 
+
+Assim, no projeto não gerou apenas um protótipo, mas sim o desenvolvimento em linguagem R de um mecanismo de Cache que pode ser usado com qualquer dado numérico. Basta o usuário ter o banco de dados Redis Instaldo. O desenvolvimento do projeto está disponível em um repositório do Github dedicado ao projeto:https://github.com/LuizPaulo23/ProjetosPUC 
 
 
 
