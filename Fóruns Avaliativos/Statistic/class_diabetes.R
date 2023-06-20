@@ -24,7 +24,7 @@ diabetes_raw = utils::read.csv("diabetes.csv") %>%
 
 #DataExplorer::plot_intro(diabetes_raw)
 DataExplorer::plot_density(diabetes_raw %>% select(-outcome), 
-                           title = "Distrinuição de Densidade das variáveis analisadas")
+                           title = "Distribuição de Densidade das variáveis analisadas")
 
 DataExplorer::plot_histogram(diabetes_raw %>% select(-outcome), 
                              title = "Distribuição de Frequência das variáveis analisadas")
@@ -126,8 +126,8 @@ ctrl <- caret::trainControl(
 
 # Grid - Knn -----------------------------------------------------------------
 
-kn = (nrow(base_train) * 0.01) # Pré-configurado como // 10% do tamanho da amostra
-tuneGrid_knn <- expand.grid(k = seq(1, kn, by = 1))
+# kn = (nrow(base_train) * 0.01) # Pré-configurado como // 10% do tamanho da amostra
+tuneGrid_knn <- expand.grid(k = seq(1, 10, by = 1))
   
   model_knn <- caret::train(as.formula(paste(var_target, "~ .")),
                             data = base_train,

@@ -1,5 +1,5 @@
-#' @title Font - Sistema de Cache com plotagem gráfica implementado em REDIS com linguagem R 
-#' @author Luiz Paulo T. Gonçalves 
+#' @title Font - Sistema de Cache com plotagem gráfica implementado em REDIS com linguagem R
+#' @author Luiz Paulo T. Gonçalves
 #' @description
 
 front <- function(){
@@ -17,7 +17,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       id = "sidebar",
-      selectInput("tipo_plot", "Tipo de Gráfico:", 
+      selectInput("tipo_plot", "Tipo de Gráfico:",
                   choices = c("Histograma" = "histogram", "Densidade" = "density")),
       fileInput("dataset", "Selecione o arquivo de dados", accept = c(".csv", ".xlsx")),
       br(),
@@ -45,4 +45,5 @@ shinyApp(ui = ui, server = server)
 
 }
 
+front()
 
